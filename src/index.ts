@@ -1,19 +1,28 @@
-import express, { Request, Response } from 'express';
-import dotenv from 'dotenv';
-
-dotenv.config();  // Carrega variáveis de ambiente do .env
+import express from "express";
+import bodyParser from "body-parser";
+import emailRoutes from "./routes/emailRoutes";
+import authRoute from "./routes/authRoute";
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+// Middleware
+app.use(bodyParser.json());
 
-// Exemplo de rota
-app.get('/', (req: Request, res: Response) => {
-	res.send('Micro-SaaS de Automação de Marketing!');
+// Rotas
+app.use("/auth", authRoute);
+app.use("/emails", emailRoutes); // Rotas de gerenciamento de e-mails
+
+app.get("/", (req, res) => {
+	res.status(200).json({ message: "Bem-vindo ao Micro-SaaS de Email Marketing!" });
 });
 
-// Inicia o servidor
-app.listen(port, () => {
-	console.log(`Servidor rodando na porta ${port}`);
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+	console.error(err.stack);
+	res.status(500).json({ error: "Ocorreu um erro interno no servidor." });
+});
+
+// Servidor
+app.listen(PORT, () => {
+	console.log(`Servidor rodando na porta ${PORT}`);
 });
